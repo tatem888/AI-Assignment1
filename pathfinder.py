@@ -27,7 +27,7 @@ with open(sys.argv[1], "r") as mapFile:
 
 algorithm = sys.argv[2]
 
-if sys.argv[3] != None:
+if len(sys.argv)[3] == 3:
     heuristic = sys.argv[3]
 
 print(algorithm)
