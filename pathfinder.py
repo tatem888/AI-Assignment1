@@ -14,9 +14,17 @@ with open(sys.argv[1], "r") as mapFile:
 
     for i in range(mapSize[0]):
         
-        mapData[i,:] = mapFile.readline().split()
+        elements = mapFile.readline().split()
+
+        for j in range(mapSize[1]):
+            
+            if elements[j] == "X":
+                mapData[i,j] = -1
+            else:
+                mapData[i,j] = elements[j]
+
     
-    
+    print(mapData)
 #read algorithm and heuristic from command line
 
 algorithm = sys.argv[2]
