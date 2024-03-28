@@ -21,13 +21,14 @@ with open(sys.argv[1], "r") as mapFile:
             if elements[j] == "X":
                 mapData[i,j] = -1
             else:
-                mapData[i,j] = elements[j]
+                mapData[i,j] = int(elements[j])
 
-    
-    print(mapData)
 #read algorithm and heuristic from command line
 
 algorithm = sys.argv[2]
 heuristic = sys.argv[3]
 
+print(algorithm)
+print(heuristic)
+print(mapData)
 
