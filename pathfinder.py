@@ -12,6 +12,7 @@ with open(sys.argv[1], "r") as mapFile:
 
     mapData = np.zeros(mapSize)
 
+    #itterate through each line of mapFile, adding to mapData array, treating 'X's as -1 (impassable)
     for i in range(mapSize[0]):
         
         elements = mapFile.readline().split()
@@ -23,12 +24,32 @@ with open(sys.argv[1], "r") as mapFile:
             else:
                 mapData[i,j] = int(elements[j])
 
+    #pad border with -1s (impassable)
+    mapData = np.pad(mapData, (1,1), mode='constant', constant_values=(-1,-1))
+
 #read algorithm and heuristic from command line
 
 algorithm = sys.argv[2]
 
-if len(sys.argv)[3] == 3:
+def bfs(startPoint, endPoint, mapData):
+
+def ucs(startPoint, endPoint, mapData):
+
+def astar(startPoint, endPoint, mapData, heuristic):
+
+
+if algorithm == "bfs":          #breadth first search
+    bfs(startPoint, endPoint, mapData)
+
+elif algorithm == "ucs":          #uniform cost search
+    ucs(startPoint, endPoint, mapData)
+
+elif algorithm == "astar":        #astar search
     heuristic = sys.argv[3]
+    astar(startPoint, endPoint, mapData, heuristic)
+
+else:
+    raise TypeError ("Invalid argument type")
 
 print(algorithm)
 print(heuristic)
