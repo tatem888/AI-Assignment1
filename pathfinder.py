@@ -26,7 +26,9 @@ with open(sys.argv[1], "r") as mapFile:
 #read algorithm and heuristic from command line
 
 algorithm = sys.argv[2]
-heuristic = sys.argv[3]
+
+if sys.argv[3] != None:
+    heuristic = sys.argv[3]
 
 print(algorithm)
 print(heuristic)
