@@ -1,6 +1,11 @@
 import numpy as np
 import sys
 from queue import Queue
+from queue import PriorityQueue
+from dataclasses import dataclass, field
+from typing import Any
+
+
 
 #open map file, split lines into Map SIze, start point and end point tuple, and map data 2d array
 
@@ -52,6 +57,21 @@ class Node:
     def get_elevation(self):
         return self.elevation
     
+    
+    
+@dataclass(order=True)
+class PrioritisedItem:
+    def __init__(self,priority, node):
+        self.priority = priority
+        self.node = node
+
+    priority: int
+    node: Any=field (compare=False)
+
+    def get_node(self):
+        return self.node
+
+
 
 #function to initilise the start node
 def initStartNode(startPoint, mapData):
@@ -66,6 +86,11 @@ def initStartNode(startPoint, mapData):
 def initFringe(startNode):
     q = Queue(maxsize = 50)
     q.put(startNode)
+    return q
+
+def initPriorityFringe(startPriorityItem):
+    q = PriorityQueue(maxsize = 50)
+    q.put(startPriorityItem)
     return q
 
 #function to initilise closed set for searched coordinates
@@ -112,9 +137,8 @@ def expandFringe(stateNode, mapData, fringe, closed):
     return fringe
 
 #implementation of the graph search pseudocode
-def graphSearch(startPoint, endPoint, mapData, mapSize):
+def bfsGraphSearch(startPoint, endPoint, mapData, mapSize):
     
-    print
     startNode = initStartNode(startPoint,mapData)
     closed = initClosed(mapSize)
     fringe = initFringe(startNode)
@@ -134,6 +158,63 @@ def graphSearch(startPoint, endPoint, mapData, mapSize):
         if closed[Node.get_coordinates(stateNode)] != 1:
             closed[Node.get_coordinates(stateNode)] = 1
             expandFringe(stateNode,mapData,fringe,closed)
+
+
+def uscExpandFringe(stateNode, mapData, fringe, closed):
+
+    coords = Node.get_coordinates(stateNode)
+    x,y = coords
+
+    up = (x-1, y)
+    down = (x+1, y)
+    left = (x, y-1)
+    right = (x, y+1)
+
+    if mapData[up] != -1 and closed[up] != 1:
+        u = Node((x-1,y),mapData[up],stateNode)
+        up = PrioritisedItem(Node.get_elevation(u),u)
+        fringe.put(up)
+
+    if mapData[down] != -1 and closed[down] != 1:
+        d = Node((x+1,y),mapData[down],stateNode)
+        dp = PrioritisedItem(Node.get_elevation(d),d)
+        fringe.put(dp)
+        
+    if mapData[left] != -1 and closed[left] != 1:
+        l = Node((x,y-1),mapData[left],stateNode)
+        lp = PrioritisedItem(Node.get_elevation(l),l)
+        fringe.put(lp)
+
+    if mapData[right] != -1 and closed[right] != 1:
+        r = Node((x,y+1),mapData[right],stateNode)
+        rp = PrioritisedItem(Node.get_elevation(r),r)
+        fringe.put(rp)
+        
+    return fringe
+
+def ucsGraphSearch(startPoint, endPoint, mapData, mapSize):
+    
+    startNode = initStartNode(startPoint,mapData)
+    startPriorityItem = PrioritisedItem(1,startNode)
+    closed = initClosed(mapSize)
+    fringe = initPriorityFringe(startPriorityItem)
+
+    #run until fringe is empty or return triggered
+    while fringe:          
+        
+        if fringe.empty() == True:
+            return print("null")
+        
+        priorityItem = fringe.get()
+        stateNode = PrioritisedItem.get_node(priorityItem)
+
+
+        if endCheck(stateNode, endPoint) == True:
+            return stateNode
+        
+        if closed[Node.get_coordinates(stateNode)] != 1:
+            closed[Node.get_coordinates(stateNode)] = 1
+            uscExpandFringe(stateNode,mapData,fringe,closed)
 
 def outputMap(endNode, mapData, mapSize):
 
@@ -160,7 +241,10 @@ def outputMap(endNode, mapData, mapSize):
 #run function
 mapSize,startPoint,endPoint,mapData,algorithm, heuristic = readFile()
 
-endNode = graphSearch(startPoint,endPoint,mapData,mapSize)
+if algorithm == "bfs":
+    endNode = bfsGraphSearch(startPoint,endPoint,mapData,mapSize)
+elif algorithm == "ucs":
+    endNode = ucsGraphSearch(startPoint,endPoint,mapData,mapSize)
 
 outputMap(endNode,mapData,mapSize)
 
